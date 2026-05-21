@@ -1,0 +1,8 @@
+{
+  "name": "Odoo Web & ERP Simulator",
+  "description": "An interactive, high-fidelity Odoo Web Client and ERP Engine simulator. Explore core modules (CRM, Sales, Invoicing, Inventory), run Odoo Python models, and design custom XML view records.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

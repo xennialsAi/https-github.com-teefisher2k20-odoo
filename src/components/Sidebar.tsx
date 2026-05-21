@@ -1,0 +1,177 @@
+import React from 'react';
+import { 
+  Building2, 
+  Layers, 
+  Database, 
+  Terminal, 
+  Heart, 
+  Home, 
+  GraduationCap, 
+  Briefcase, 
+  DollarSign, 
+  Container, 
+  CheckCircle, 
+  ChevronRight,
+  CodeXml
+} from 'lucide-react';
+import { cn } from '../utils';
+
+interface SidebarProps {
+  activeAppId: string;
+  setActiveAppId: (id: string) => void;
+  developerMode: boolean;
+  setDeveloperMode: (val: boolean) => void;
+  installedAddons: string[];
+}
+
+export default function Sidebar({
+  activeAppId,
+  setActiveAppId,
+  developerMode,
+  setDeveloperMode,
+  installedAddons,
+}: SidebarProps) {
+  // Built-in core apps
+  const coreApps = [
+    { id: 'apps', name: 'App Store', icon: Layers, color: 'text-purple-600 bg-purple-50' },
+    { id: 'crm', name: 'CRM', icon: Briefcase, color: 'text-orange-600 bg-orange-50' },
+    { id: 'sales', name: 'Sales', icon: DollarSign, color: 'text-blue-600 bg-blue-50' },
+    { id: 'invoices', name: 'Invoicing', icon: DollarSign, color: 'text-emerald-600 bg-emerald-50' },
+    { id: 'inventory', name: 'Inventory', icon: Container, color: 'text-indigo-600 bg-indigo-50' },
+  ];
+
+  // Custom dynamically compiled Odoo applications
+  const customModules = [
+    { id: 'school_registry', name: 'School', icon: GraduationCap, color: 'text-red-600 bg-red-50' },
+    { id: 'estate_management', name: 'Real Estate', icon: Home, color: 'text-teal-600 bg-teal-50' },
+  ];
+
+  return (
+    <div className="w-64 bg-[#14171D] text-[#E0E2E6] border-r border-[#252A33] flex flex-col h-full select-none" id="odoo-sidebar-root">
+      {/* Brand Header */}
+      <div className="p-5 border-b border-[#252A33] flex items-center gap-3">
+        <div className="p-2 bg-indigo-600 rounded-lg shadow-inner">
+          <Building2 className="h-5 w-5 text-white" />
+        </div>
+        <div>
+          <h1 className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+            Odoo <span className="text-[9px] bg-[#252A33] text-indigo-400 px-1.5 py-0.5 font-bold uppercase rounded font-mono">Cloud</span>
+          </h1>
+          <p className="text-[10px] text-[#8E95A3] font-semibold font-mono">v16.0 Stable Suite</p>
+        </div>
+      </div>
+
+      {/* Main App Switcher Links */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-1.5">
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#8E95A3] px-3 mb-2 font-mono">Core ERP Suite</p>
+        {coreApps.map((app) => {
+          const Icon = app.icon;
+          const isActive = activeAppId === app.id;
+          return (
+            <button
+              key={app.id}
+              onClick={() => setActiveAppId(app.id)}
+              className={cn(
+                "w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 text-left border-l-2",
+                isActive 
+                  ? "bg-indigo-600/10 text-indigo-400 border-indigo-650 font-bold" 
+                  : "text-[#8E95A3] border-transparent hover:bg-[#1C2129] hover:text-[#E0E2E6]"
+              )}
+            >
+              <div className="flex items-center gap-3">
+                <Icon className={cn("h-4 w-4", isActive ? "text-indigo-400" : "text-[#8E95A3]")} />
+                <span>{app.name}</span>
+              </div>
+              {isActive && <ChevronRight className="h-3.5 w-3.5 opacity-80" />}
+            </button>
+          );
+        })}
+
+        {/* Dynamic Studio Module Editor */}
+        <p className="text-[10px] font-bold uppercase tracking-widest text-[#8E95A3] px-3 pt-4 mb-2 font-mono">Simulated IDE</p>
+        <button
+          onClick={() => setActiveAppId('studio')}
+          className={cn(
+            "w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 text-left border-l-2",
+            activeAppId === 'studio' 
+              ? "bg-indigo-600/10 text-indigo-400 border-indigo-650 font-bold" 
+              : "text-[#8E95A3] border-transparent hover:bg-[#1C2129] hover:text-[#E0E2E6]"
+          )}
+        >
+          <div className="flex items-center gap-3">
+            <CodeXml className={cn("h-4 w-4", activeAppId === 'studio' ? "text-indigo-400" : "text-[#8E95A3]")} />
+            <span>Studio Module Editor</span>
+          </div>
+          {activeAppId === 'studio' && <ChevronRight className="h-3.5 w-3.5 opacity-80" />}
+        </button>
+
+        {/* Custom Dynamic Addons Installed section */}
+        {installedAddons.length > 0 && (
+          <>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#8E95A3] px-3 pt-4 mb-2 font-mono">Installed Addons ({installedAddons.length})</p>
+            {customModules
+              .filter(m => installedAddons.includes(m.id))
+              .map((app) => {
+                const Icon = app.icon;
+                const isActive = activeAppId === app.id;
+                return (
+                  <button
+                    key={app.id}
+                    onClick={() => setActiveAppId(app.id)}
+                    className={cn(
+                      "w-full flex items-center justify-between px-4 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 text-left border-l-2",
+                      isActive 
+                        ? "bg-indigo-600/10 text-indigo-400 border-indigo-650 font-bold" 
+                        : "text-[#8E95A3] border-transparent hover:bg-[#1C2129] hover:text-[#E0E2E6]"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <Icon className={cn("h-4 w-4", isActive ? "text-indigo-400" : "text-[#8E95A3]")} />
+                      <span>{app.name}</span>
+                    </div>
+                  </button>
+                );
+              })}
+          </>
+        )}
+      </div>
+
+      {/* Developer Mode & PostgreSQL Database explorer */}
+      <div className="p-4 border-t border-[#252A33] space-y-2.5 bg-[#111419]">
+        <button
+          onClick={() => setActiveAppId('database')}
+          className={cn(
+            "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold uppercase tracking-wider text-left transition border-l-2",
+            activeAppId === 'database' 
+              ? "bg-indigo-600/10 text-indigo-400 border-indigo-650" 
+              : "text-[#8E95A3] border-transparent hover:bg-[#1C2129] hover:text-[#E0E2E6]"
+          )}
+        >
+          <Database className="h-4 w-4" />
+          <span>Database Explorer</span>
+        </button>
+
+        <div className="flex items-center justify-between px-3 py-2 bg-[#1C2129] border border-[#252A33] rounded-lg">
+          <div className="flex items-center gap-2">
+            <Terminal className="h-3 w-3 text-indigo-400" />
+            <span className="text-[10px] text-[#8E95A3] font-mono uppercase tracking-wider">Dev Mode</span>
+          </div>
+          <button
+            onClick={() => setDeveloperMode(!developerMode)}
+            className={cn(
+              "w-8 h-4 rounded-full p-px transition-colors duration-200 focus:outline-none",
+              developerMode ? "bg-indigo-600" : "bg-[#252A33]"
+            )}
+          >
+            <div
+              className={cn(
+                "bg-white w-3 h-3 rounded-full shadow-md transform duration-200",
+                developerMode ? "translate-x-4" : "translate-x-0"
+              )}
+            />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
