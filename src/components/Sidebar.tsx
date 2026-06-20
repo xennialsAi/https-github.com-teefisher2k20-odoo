@@ -12,7 +12,15 @@ import {
   Container, 
   CheckCircle, 
   ChevronRight,
-  CodeXml
+  CodeXml,
+  Users,
+  Share2,
+  Globe,
+  MessageSquare,
+  Cpu,
+  PieChart,
+  BookOpen,
+  Server
 } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -34,10 +42,18 @@ export default function Sidebar({
   // Built-in core apps
   const coreApps = [
     { id: 'apps', name: 'App Store', icon: Layers, color: 'text-purple-600 bg-purple-50' },
+    { id: 'openai_cookbook', name: 'OpenAI Cookbook', icon: BookOpen, color: 'text-emerald-500 bg-emerald-50' },
+    { id: 'odoo_devops', name: 'DevOps & Deploy', icon: Server, color: 'text-amber-500 bg-amber-55 font-bold animate-pulse' },
     { id: 'crm', name: 'CRM', icon: Briefcase, color: 'text-orange-600 bg-orange-50' },
     { id: 'sales', name: 'Sales', icon: DollarSign, color: 'text-blue-600 bg-blue-50' },
-    { id: 'invoices', name: 'Invoicing', icon: DollarSign, color: 'text-emerald-600 bg-emerald-50' },
+    { id: 'invoices', name: 'Finance', icon: DollarSign, color: 'text-emerald-600 bg-emerald-50' },
     { id: 'inventory', name: 'Inventory', icon: Container, color: 'text-indigo-600 bg-indigo-50' },
+    { id: 'hr', name: 'HR', icon: Users, color: 'text-pink-600 bg-pink-50' },
+    { id: 'marketing', name: 'Marketing', icon: Share2, color: 'text-rose-600 bg-rose-50' },
+    { id: 'website_builder', name: 'Web Builder', icon: Globe, color: 'text-cyan-600 bg-cyan-50' },
+    { id: 'productivity', name: 'Productivity', icon: MessageSquare, color: 'text-violet-600 bg-violet-50' },
+    { id: 'ai_brand_agent', name: 'Brand Agent', icon: Cpu, color: 'text-fuchsia-600 bg-fuchsia-50' },
+    { id: 'bi', name: 'Spreadsheet BI', icon: PieChart, color: 'text-teal-600 bg-teal-50' },
   ];
 
   // Custom dynamically compiled Odoo applications

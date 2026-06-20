@@ -28,6 +28,15 @@ import StudioApp from './components/StudioApp';
 import OdooAppsStore from './components/OdooAppsStore';
 import DbExplorer from './components/DbExplorer';
 import CustomAppRenderer from './components/CustomAppRenderer';
+import PlaceholderApp from './components/PlaceholderApp';
+import HrApp from './components/HrApp';
+import MarketingApp from './components/MarketingApp';
+import WebsiteBuilderApp from './components/WebsiteBuilderApp';
+import ProductivityApp from './components/ProductivityApp';
+import AiBrandAgentApp from './components/AiBrandAgentApp';
+import BiApp from './components/BiApp';
+import OpenaiCookbookApp from './components/OpenaiCookbookApp';
+import OdooDevOpsApp from './components/OdooDevOpsApp';
 
 export default function App() {
   // Local Database Persistence Wrapper for dynamic Sandbox reloadability
@@ -250,6 +259,22 @@ export default function App() {
             customRecords={customRecords}
           />
         );
+      case 'hr':
+        return <HrApp />;
+      case 'marketing':
+        return <MarketingApp />;
+      case 'website_builder':
+        return <WebsiteBuilderApp />;
+      case 'productivity':
+        return <ProductivityApp />;
+      case 'ai_brand_agent':
+        return <AiBrandAgentApp />;
+      case 'bi':
+        return <BiApp />;
+      case 'openai_cookbook':
+        return <OpenaiCookbookApp />;
+      case 'odoo_devops':
+        return <OdooDevOpsApp />;
       default:
         // Handle custom compiled model loaders (school_registry, estate_management)
         const activeAddon = addons.find((a) => a.id === activeAppId);
@@ -269,7 +294,11 @@ export default function App() {
           );
         }
 
-        // Default fallback to Apps Store
+        // Default fallback for new AI agents and unbuilt core modules
+        if (activeAppId !== 'apps') {
+          return <PlaceholderApp appId={activeAppId} />;
+        }
+
         return (
           <OdooAppsStore 
             addons={addons}

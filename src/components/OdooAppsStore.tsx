@@ -9,7 +9,20 @@ import {
   Wand2, 
   FileCheck,
   CheckCircle,
-  DownloadCloud
+  DownloadCloud,
+  Globe,
+  ShoppingCart,
+  MessageSquare,
+  Users,
+  Video,
+  MonitorPlay,
+  Share2,
+  Calendar,
+  PenTool,
+  Cpu,
+  Mail,
+  PieChart,
+  HardDrive
 } from 'lucide-react';
 import { CustomOdooAddon } from '../types';
 import { cn } from '../utils';
@@ -55,20 +68,68 @@ export default function OdooAppsStore({
     },
     {
       id: 'invoices',
-      name: 'Invoicing',
-      summary: 'Ledger management, register payments, and printable receipt sheets',
+      name: 'Finance & Accounting',
+      summary: 'Invoicing, Expenses, Ledger management, and register payments',
       author: 'Odoo S.A.',
       icon: FileCheck,
       color: 'bg-emerald-500',
     },
     {
       id: 'inventory',
-      name: 'Inventory',
-      summary: 'Warehouse stock tracker, catalog generator, and movement histories',
+      name: 'Supply Chain & Inventory',
+      summary: 'Warehouse stock tracker, Manufacturing, PLM, and Purchase',
       author: 'Odoo S.A.',
       icon: Container,
       color: 'bg-indigo-500',
     },
+    {
+      id: 'hr',
+      name: 'Human Resources',
+      summary: 'Employees, Recruitment, Time Off, Appraisals, Referrals',
+      author: 'Odoo S.A.',
+      icon: Users,
+      color: 'bg-pink-500',
+    },
+    {
+      id: 'marketing',
+      name: 'Marketing',
+      summary: 'Social, Email, SMS Marketing, Automation, Events, Surveys',
+      author: 'Odoo S.A.',
+      icon: Share2,
+      color: 'bg-rose-500',
+    },
+    {
+      id: 'website_builder',
+      name: 'Website Builder & eCommerce',
+      summary: 'Powered by remotion-dev & hyperframes for dynamic video assets',
+      author: 'Web Integration',
+      icon: Globe,
+      color: 'bg-cyan-500',
+    },
+    {
+      id: 'productivity',
+      name: 'Productivity',
+      summary: 'Discuss, IoT, VoIP, Knowledge, WhatsApp, Live Chat integration',
+      author: 'Odoo S.A.',
+      icon: MessageSquare,
+      color: 'bg-violet-500',
+    },
+    {
+      id: 'ai_brand_agent',
+      name: 'The Brand Agent (AI)',
+      summary: 'Brand Guardian LLM (from teefisher2k20/modelscope & huggingface.co)',
+      author: 'AI Operations',
+      icon: Cpu,
+      color: 'bg-fuchsia-600',
+    },
+    {
+      id: 'bi',
+      name: 'Spreadsheet BI & Documents',
+      summary: 'Business Intelligence, Sign, and Data Analytics',
+      author: 'Odoo S.A.',
+      icon: PieChart,
+      color: 'bg-teal-500',
+    }
   ];
 
   // Installation loop trigger

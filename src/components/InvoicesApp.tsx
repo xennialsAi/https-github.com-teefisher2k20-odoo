@@ -1,7 +1,22 @@
-import React, { useState, useRef } from 'react';
-import { FileText, Coins, Landmark, Calendar, Printer, ShieldCheck, CheckCircle } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  FileText, 
+  Coins, 
+  Landmark, 
+  Calendar, 
+  Printer, 
+  ShieldCheck, 
+  CheckCircle, 
+  Sparkles, 
+  Sliders, 
+  Building2, 
+  UserCheck, 
+  Tag, 
+  Briefcase 
+} from 'lucide-react';
 import { AccountInvoice, ResPartner, ProductProduct } from '../types';
 import { cn, formatCurrency, formatDate } from '../utils';
+import Logo, { LOGO_VARIANTS, LogoStyle } from './LogoVariations';
 
 interface InvoicesAppProps {
   invoices: AccountInvoice[];
@@ -13,6 +28,31 @@ interface InvoicesAppProps {
 export default function InvoicesApp({ invoices, partners, products, setInvoices }: InvoicesAppProps) {
   const [activeInvoice, setActiveInvoice] = useState<AccountInvoice | null>(null);
   const [showPdf, setShowPdf] = useState<AccountInvoice | null>(null);
+  const [showBrandingStudio, setShowBrandingStudio] = useState(false);
+
+  // Loaded brand configuration & order facts
+  const [brandName, setBrandName] = useState(() => localStorage.getItem('brand_name_custom') || 'Xennials Automation Agency');
+  const [activeLogo, setActiveLogo] = useState<LogoStyle>(() => (localStorage.getItem('active_logo_style') as LogoStyle) || 'neon_orbit');
+  const [businessAddress, setBusinessAddress] = useState(() => localStorage.getItem('biz_address') || '250 Executive Parkway, Suite 400');
+  const [businessCity, setBusinessCity] = useState(() => localStorage.getItem('biz_city') || 'San Francisco, CA 94105');
+  const [businessCountry, setBusinessCountry] = useState(() => localStorage.getItem('biz_country') || 'United States');
+  const [vatId, setVatId] = useState(() => localStorage.getItem('biz_vat_id') || 'REG-991-XEN-2025');
+  const [authorizedSignatory, setAuthorizedSignatory] = useState(() => localStorage.getItem('authorized_sign') || 'Terrance Adams (Partner)');
+  const [slaTier, setSlaTier] = useState(() => localStorage.getItem('sla_tier_custom') || 'Enterprise Platinum Support SLA (99.9% hotconnect)');
+  const [paymentTerms, setPaymentTerms] = useState(() => localStorage.getItem('payment_terms_custom') || 'Net-30 days standard banking wire');
+
+  // Sync to local storage
+  useEffect(() => {
+    localStorage.setItem('brand_name_custom', brandName);
+    localStorage.setItem('active_logo_style', activeLogo);
+    localStorage.setItem('biz_address', businessAddress);
+    localStorage.setItem('biz_city', businessCity);
+    localStorage.setItem('biz_country', businessCountry);
+    localStorage.setItem('biz_vat_id', vatId);
+    localStorage.setItem('authorized_sign', authorizedSignatory);
+    localStorage.setItem('sla_tier_custom', slaTier);
+    localStorage.setItem('payment_terms_custom', paymentTerms);
+  }, [brandName, activeLogo, businessAddress, businessCity, businessCountry, vatId, authorizedSignatory, slaTier, paymentTerms]);
 
   // Workflow Action: Register Payment (Draft/Posted -> Paid)
   const handleRegisterPayment = (invoice: AccountInvoice) => {
@@ -31,18 +71,158 @@ export default function InvoicesApp({ invoices, partners, products, setInvoices 
           <div className="text-xs text-[#8E95A3] font-semibold tracking-wider uppercase font-mono">Invoicing Ledger</div>
           <h2 className="text-lg font-bold text-white uppercase tracking-wide">Customer Invoices</h2>
         </div>
-        <div className="flex items-center gap-3 bg-[#1C2129] px-4 py-2 rounded-lg border border-[#252A33]">
-          <Coins className="h-4 w-4 text-indigo-400" />
-          <span className="text-xs font-semibold text-[#8E95A3]">Accounts Receivable:</span>
-          <span className="text-sm font-black text-indigo-400 font-mono">
-            {formatCurrency(
-              invoices
-                .filter((inv) => inv.payment_state !== 'paid')
-                .reduce((sum, inv) => sum + inv.amount_total, 0)
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowBrandingStudio(!showBrandingStudio)}
+            className={cn(
+              "flex items-center gap-2 text-xs font-bold px-3.5 py-2 rounded-lg border transition",
+              showBrandingStudio
+                ? "bg-fuchsia-600/20 text-fuchsia-400 border-fuchsia-500/30 shadow-[0_0_10px_rgba(192,38,211,0.15)]"
+                : "bg-[#1C2129] text-[#8E95A3] border-[#252A33] hover:text-[#E0E2E6]"
             )}
-          </span>
+          >
+            <Sliders className="h-4 w-4 text-fuchsia-400" />
+            <span>Brand & Order Facts Studio</span>
+          </button>
+
+          <div className="flex items-center gap-3 bg-[#1C2129] px-4 py-2 rounded-lg border border-[#252A33]">
+            <Coins className="h-4 w-4 text-indigo-400" />
+            <span className="text-xs font-semibold text-[#8E95A3]">Accounts Receivable:</span>
+            <span className="text-sm font-black text-indigo-400 font-mono">
+              {formatCurrency(
+                invoices
+                  .filter((inv) => inv.payment_state !== 'paid')
+                  .reduce((sum, inv) => sum + inv.amount_total, 0)
+              )}
+            </span>
+          </div>
         </div>
       </div>
+
+      {/* Brand & Order Facts Control Center (Collapsable Studio Panel) */}
+      {showBrandingStudio && (
+        <div className="bg-[#14171D] border-b border-[#252A33] p-4 shrink-0 overflow-y-auto max-h-[40vh] transition-all duration-300">
+          <div className="max-w-7xl mx-auto space-y-4">
+            <div className="flex justify-between items-center border-b border-[#252A33] pb-2">
+              <div className="flex items-center gap-2.5">
+                <div className="bg-fuchsia-600/10 p-1.5 rounded-lg border border-fuchsia-500/10">
+                  <Logo style={activeLogo} size={28} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Custom Identity & Order Facts Studio</h3>
+                  <p className="text-[10px] text-[#8E95A3]">Customize logo variations, company headers, tax compliance IDs, and default audit facts.</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setShowBrandingStudio(false)}
+                className="text-xs text-gray-500 hover:text-white font-mono"
+              >
+                ✕ Close
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-1">
+              {/* Logo Selectors */}
+              <div className="space-y-2.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[#8E95A3] font-mono block">Logo Variation Selection</label>
+                <div className="grid grid-cols-2 gap-2">
+                  {LOGO_VARIANTS.map((v) => {
+                    const isSelected = activeLogo === v.id;
+                    return (
+                      <button
+                        key={v.id}
+                        onClick={() => setActiveLogo(v.id)}
+                        className={cn(
+                          "p-3 rounded-lg border text-left flex gap-3 transition min-h-[90px]",
+                          isSelected
+                            ? "bg-fuchsia-600/10 border-fuchsia-500/40 shadow-[0_0_12px_rgba(192,38,211,0.05)]"
+                            : "bg-[#1C2129]/40 border-[#252A33] hover:bg-[#1C2129] hover:border-gray-700"
+                        )}
+                      >
+                        <div className="shrink-0 pt-0.5">
+                          <Logo style={v.id} size={36} />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-bold text-white truncate leading-tight">{v.name}</span>
+                          </div>
+                          <span className="inline-block text-[8px] font-mono font-bold bg-fuchsia-950/40 text-fuchsia-400 border border-fuchsia-900/40 px-1 rounded mt-1">
+                            {v.tag}
+                          </span>
+                          <span className="block text-[10px] text-gray-400 leading-tight mt-1 line-clamp-1">{v.description}</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Order Facts Input Panel */}
+              <div className="grid grid-cols-2 gap-3.5">
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#8E95A3] uppercase font-mono tracking-wider block">Custom Agency Brand Name</label>
+                  <input
+                    type="text"
+                    value={brandName}
+                    onChange={(e) => setBrandName(e.target.value)}
+                    className="w-full bg-[#0A0C0F] text-xs text-white p-2 rounded border border-[#252A33] focus:outline-none focus:border-fuchsia-500 font-semibold"
+                    placeholder="e.g. Xennials Automation"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#8E95A3] uppercase font-mono tracking-wider block">Authorized Signatory & Officer</label>
+                  <input
+                    type="text"
+                    value={authorizedSignatory}
+                    onChange={(e) => setAuthorizedSignatory(e.target.value)}
+                    className="w-full bg-[#0A0C0F] text-xs text-white p-2 rounded border border-[#252A33] focus:outline-none focus:border-fuchsia-500 font-semibold"
+                    placeholder="e.g. Terrance Adams"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#8E95A3] uppercase font-mono tracking-wider block">Registered Corporation Tax ID</label>
+                  <input
+                    type="text"
+                    value={vatId}
+                    onChange={(e) => setVatId(e.target.value)}
+                    className="w-full bg-[#0A0C0F] text-xs text-white p-2 rounded border border-[#252A33] focus:outline-none focus:border-fuchsia-500 font-mono"
+                    placeholder="e.g. REG-991-XEN"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[9px] font-bold text-[#8E95A3] uppercase font-mono tracking-wider block">Registered Headquarters Address</label>
+                  <input
+                    type="text"
+                    onChange={(e) => setBusinessAddress(e.target.value)}
+                    value={businessAddress}
+                    className="w-full bg-[#0A0C0F] text-xs text-white p-2 rounded border border-[#252A33] focus:outline-none focus:border-fuchsia-500"
+                    placeholder="Street address"
+                  />
+                </div>
+                <div className="space-y-1.5 col-span-2">
+                  <label className="text-[9px] font-bold text-[#8E95A3] uppercase font-mono tracking-wider block">Default Payment SLA & SLA Tier Facts</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      value={slaTier}
+                      onChange={(e) => setSlaTier(e.target.value)}
+                      className="w-full bg-[#0A0C0F] text-xs text-white p-2 rounded border border-[#252A33] focus:outline-none focus:border-fuchsia-500"
+                      placeholder="SLA Support Tier details"
+                    />
+                    <input
+                      type="text"
+                      value={paymentTerms}
+                      onChange={(e) => setPaymentTerms(e.target.value)}
+                      className="w-full bg-[#0A0C0F] text-xs text-white p-2 rounded border border-[#252A33] focus:outline-none focus:border-fuchsia-500"
+                      placeholder="Payment standard terms"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 overflow-auto p-4 flex gap-4">
         {/* Invoices List Table */}
@@ -249,15 +429,35 @@ export default function InvoicesApp({ invoices, partners, products, setInvoices 
               <div className="border border-[#252A33] rounded-lg p-6 bg-[#14171D] text-white shadow-lg space-y-6">
                 {/* Letterhead */}
                 <div className="flex justify-between items-start border-b border-[#252A33] pb-5">
-                  <div className="space-y-1">
-                    <h4 className="font-extrabold text-[#E0E2E6] text-base tracking-wider uppercase">Your Company Inc.</h4>
-                    <p className="text-[10px] text-[#8E95A3] font-mono leading-none">250 Executive Parkway</p>
-                    <p className="text-[10px] text-[#8E95A3] font-mono leading-none">San Francisco, CA 94105</p>
-                    <p className="text-[10px] text-[#8E95A3] font-mono leading-none">United States</p>
+                  <div className="flex gap-4">
+                    <div className="bg-[#1C2129] p-2.5 rounded-xl border border-[#252A33] shrink-0 flex items-center justify-center">
+                      <Logo style={activeLogo} size={42} />
+                    </div>
+                    <div className="space-y-1">
+                      <h4 className="font-extrabold text-white text-base tracking-wider uppercase">{brandName}</h4>
+                      <p className="text-[10px] text-[#8E95A3] font-mono leading-none">{businessAddress}</p>
+                      <p className="text-[10px] text-[#8E95A3] font-mono leading-none">{businessCity}, {businessCountry}</p>
+                      <p className="text-[10px] text-[#8E95A3] font-mono leading-none">VAT NO: <span className="font-semibold text-gray-300">{vatId}</span></p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <h3 className="text-lg font-bold text-indigo-400 font-mono tracking-tight">{showPdf.name}</h3>
                     <p className="text-[9px] text-zinc-400 font-mono uppercase mt-1">Invoice Payment Receipt</p>
+                    <div className="text-[8px] bg-indigo-950/40 text-indigo-300 px-2 py-0.5 rounded border border-indigo-900/40 inline-block mt-1 font-mono">
+                      {v => v} Standard Certified
+                    </div>
+                  </div>
+                </div>
+
+                {/* SLA and Payment Order Facts */}
+                <div className="bg-[#1C2129]/30 border border-[#252A33]/50 rounded-lg p-3 text-xs grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[9px] uppercase font-bold text-fuchsia-400 block font-mono">Service SLA Tier Rating:</span>
+                    <p className="text-[#E0E2E6] font-mono text-[10px]">{slaTier}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[9px] uppercase font-bold text-emerald-400 block font-mono">Settlement Terms & Mode:</span>
+                    <p className="text-[#E0E2E6] font-mono text-[10px]">{paymentTerms}</p>
                   </div>
                 </div>
 
@@ -326,12 +526,15 @@ export default function InvoicesApp({ invoices, partners, products, setInvoices 
                 {/* Sign-off & signature line */}
                 <div className="border-t border-dashed border-[#252A33] pt-5 flex justify-between items-center text-xs">
                   <div className="text-[9px] text-[#8E95A3] font-mono">
-                    <p>UTC Timestamp: 2026-05-21 19:46:53</p>
-                    <p>Payment Mode: Handled via Bank Wire / ERP Registry</p>
+                    <p>UTC Timestamp: {new Date().toISOString().replace('T', ' ').substring(0, 19)}</p>
+                    <p>Payment Mode: Settled / {paymentTerms.split(' ')[0] || 'Agency Transfer'}</p>
                   </div>
                   <div className="text-center">
-                    <div className="h-8 border-b border-[#252A33] w-32 mx-auto" />
-                    <p className="text-[9px] uppercase font-bold text-[#8E95A3] mt-1 font-mono">Authorized Mitchell Admin</p>
+                    <div className="h-8 flex items-center justify-center border-b border-[#252A33] w-48 mx-auto font-mono text-[9px] text-gray-500">
+                      // DIGITAL COMPLIANCE SECURED //
+                    </div>
+                    <p className="text-[9px] uppercase font-bold text-white mt-1.5 font-mono">{authorizedSignatory}</p>
+                    <p className="text-[7.5px] uppercase tracking-wider text-[#8E95A3] font-sans font-medium">AUTHORIZED BRAND OFFICER</p>
                   </div>
                 </div>
               </div>
