@@ -27,6 +27,33 @@ import {
 import { CustomOdooAddon } from '../types';
 import { cn } from '../utils';
 
+// Icon dictionary to map custom database schemas and apps
+const ICON_MAP: Record<string, any> = {
+  Layers,
+  Briefcase,
+  DollarSign,
+  Container,
+  GraduationCap,
+  Home,
+  Wand2,
+  FileCheck,
+  CheckCircle,
+  DownloadCloud,
+  Globe,
+  ShoppingCart,
+  MessageSquare,
+  Users,
+  Video,
+  MonitorPlay,
+  Share2,
+  Calendar,
+  PenTool,
+  Cpu,
+  Mail,
+  PieChart,
+  HardDrive
+};
+
 interface OdooAppsStoreProps {
   addons: CustomOdooAddon[];
   installedAddons: string[];
@@ -219,14 +246,7 @@ export default function OdooAppsStore({
                 const isLoading = loadingAddonId === addon.id;
 
                 // Dynamically fetch icon based on metadata
-                const CustomIcon =
-                  addon.icon === 'GraduationCap'
-                    ? GraduationCap
-                    : addon.icon === 'Home'
-                    ? Home
-                    : addon.icon === 'Wand2'
-                    ? Wand2
-                    : Layers;
+                const CustomIcon = ICON_MAP[addon.icon] || Layers;
 
                 return (
                   <div

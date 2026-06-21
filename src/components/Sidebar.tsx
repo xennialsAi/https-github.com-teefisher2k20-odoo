@@ -20,7 +20,8 @@ import {
   Cpu,
   PieChart,
   BookOpen,
-  Server
+  Server,
+  Network
 } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -44,6 +45,7 @@ export default function Sidebar({
     { id: 'apps', name: 'App Store', icon: Layers, color: 'text-purple-600 bg-purple-50' },
     { id: 'openai_cookbook', name: 'OpenAI Cookbook', icon: BookOpen, color: 'text-emerald-500 bg-emerald-50' },
     { id: 'odoo_devops', name: 'DevOps & Deploy', icon: Server, color: 'text-amber-500 bg-amber-55 font-bold animate-pulse' },
+    { id: 'ai_agency_hq', name: 'AI Agency HQ', icon: Network, color: 'text-[#a855f7] bg-[#a855f7]/10 font-bold border border-purple-500/30' },
     { id: 'crm', name: 'CRM', icon: Briefcase, color: 'text-orange-600 bg-orange-50' },
     { id: 'sales', name: 'Sales', icon: DollarSign, color: 'text-blue-600 bg-blue-50' },
     { id: 'invoices', name: 'Finance', icon: DollarSign, color: 'text-emerald-600 bg-emerald-50' },

@@ -13,7 +13,8 @@ import {
   PlusCircle, 
   TrendingUp, 
   Sparkles, 
-  Cpu 
+  Cpu,
+  Trash2
 } from 'lucide-react';
 import { cn } from '../../utils';
 import { GoogleDoc } from './GoogleDocsHub';
@@ -32,17 +33,70 @@ export default function FirecrawlStudio({ onAddScrapedDoc }: FirecrawlStudioProp
   const [crawlStepIndex, setCrawlStepIndex] = useState(-1);
   const [recentScrapedArticles, setRecentScrapedArticles] = useState<Array<{ title: string, source: string, body: string, folder: string }>>([]);
 
-  const devPresets = [
-    { name: 'Andrej Karpathy (Vibe Coding)', url: 'https://www.youtube.com/@andrejkarpathy', handle: '@andrejkarpathy' },
-    { name: 'Wes Roth (AI Automation Trends)', url: 'https://www.youtube.com/@wesroth', handle: '@wesroth' },
-    { name: 'Matthew Berman (Workflow Tutorials)', url: 'https://www.youtube.com/@matthew_berman', handle: '@matthew_berman' },
-    { name: 'Prompt Engineering (SaaS builds)', url: 'https://www.youtube.com/@PromptEngineering', handle: '@PromptEngineering' }
-  ];
+  // Load / Save developer presets in local storage for persistence
+  const [devPresets, setDevPresets] = useState<Array<{ name: string, url: string, handle: string }>>(() => {
+    const saved = localStorage.getItem('firecrawl_dev_presets');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return [
+      { name: 'Andrej Karpathy (Vibe Coding)', url: 'https://www.youtube.com/@andrejkarpathy', handle: '@andrejkarpathy' },
+      { name: 'Wes Roth (AI Automation Trends)', url: 'https://www.youtube.com/@wesroth', handle: '@wesroth' },
+      { name: 'Matthew Berman (Workflow Tutorials)', url: 'https://www.youtube.com/@matthew_berman', handle: '@matthew_berman' },
+      { name: 'Prompt Engineering (SaaS builds)', url: 'https://www.youtube.com/@PromptEngineering', handle: '@PromptEngineering' }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('firecrawl_dev_presets', JSON.stringify(devPresets));
+  }, [devPresets]);
+
+  // Form states to add new custom preset
+  const [newPresetName, setNewPresetName] = useState('');
+  const [newPresetHandle, setNewPresetHandle] = useState('');
+  const [newPresetUrl, setNewPresetUrl] = useState('');
 
   const handleSelectPreset = (url: string) => {
     setTargetUrl(url);
     setCrawlLogs([]);
     setIsCrawling(false);
+  };
+
+  const handleAddPreset = () => {
+    if (!newPresetName.trim() || !newPresetUrl.trim()) {
+      alert("Name and URL are required!");
+      return;
+    }
+    // Clean handle representation
+    let handle = newPresetHandle.trim();
+    if (handle && !handle.startsWith('@')) {
+      handle = '@' + handle;
+    } else if (!handle) {
+      handle = '@' + newPresetName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    }
+
+    const exists = devPresets.some(p => p.handle.toLowerCase() === handle.toLowerCase() || p.url.toLowerCase() === newPresetUrl.toLowerCase());
+    if (exists) {
+      alert("A preset with this handle or URL already exists!");
+      return;
+    }
+
+    setDevPresets(prev => [
+      ...prev,
+      { name: newPresetName.trim(), url: newPresetUrl.trim(), handle }
+    ]);
+
+    setNewPresetName('');
+    setNewPresetHandle('');
+    setNewPresetUrl('');
+  };
+
+  const handleDeletePreset = (handle: string) => {
+    setDevPresets(prev => prev.filter(p => p.handle !== handle));
   };
 
   const triggerCrawl = (e: React.FormEvent) => {
@@ -188,26 +242,75 @@ export default function FirecrawlStudio({ onAddScrapedDoc }: FirecrawlStudioProp
             </label>
             <div className="grid grid-cols-1 gap-1.5">
               {devPresets.map((preset) => (
-                <button
-                  key={preset.handle}
-                  onClick={() => handleSelectPreset(preset.url)}
-                  className={cn(
-                    "w-full text-left p-2.5 rounded-lg border flex items-center gap-2.5 transition",
-                    targetUrl === preset.url 
-                      ? "bg-orange-600/10 border-orange-500/30 text-white font-semibold" 
-                      : "bg-[#141820]/45 text-gray-400 border-transparent hover:bg-[#1C222A]"
-                  )}
-                >
-                  <Youtube className="w-4 h-4 text-orange-500 shrink-0" />
-                  <div className="min-w-0">
-                    <span className="block text-xs uppercase font-mono tracking-tight leading-none text-white">
-                      {preset.name.split(' (')[0]}
-                    </span>
-                    <span className="block text-[9.5px] font-mono text-gray-500 mt-1 leading-none">{preset.handle}</span>
-                  </div>
-                </button>
+                <div key={preset.handle} className="flex items-center gap-1.5 w-full">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectPreset(preset.url)}
+                    className={cn(
+                      "flex-1 text-left p-2 px-2.5 rounded-lg border flex items-center gap-2.5 transition min-w-0",
+                      targetUrl === preset.url 
+                        ? "bg-orange-600/10 border-orange-500/30 text-white font-semibold" 
+                        : "bg-[#141820]/45 text-gray-400 border-transparent hover:bg-[#1C222A]"
+                    )}
+                  >
+                    <Youtube className="w-4 h-4 text-orange-500 shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <span className="block text-xs uppercase font-mono tracking-tight leading-none text-white truncate">
+                        {preset.name}
+                      </span>
+                      <span className="block text-[9.5px] font-mono text-gray-500 mt-1 leading-none truncate">{preset.handle}</span>
+                    </div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDeletePreset(preset.handle)}
+                    className="p-2.5 text-gray-500 hover:text-red-400 bg-[#141820]/45 hover:bg-[#1C222A] rounded-lg border border-transparent transition shrink-0"
+                    title="Delete preset"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
+
+            {/* Quick add custom preset */}
+            <div className="p-3 bg-[#141820]/45 rounded-lg border border-white/5 space-y-2 mt-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-mono font-bold text-gray-400 uppercase tracking-widest">Quick Add Preset</span>
+                <PlusCircle className="w-3.5 h-3.5 text-orange-500" />
+              </div>
+              <div className="space-y-1.5">
+                <input
+                  type="text"
+                  placeholder="Name (e.g. Lex Fridman)"
+                  value={newPresetName}
+                  onChange={(e) => setNewPresetName(e.target.value)}
+                  className="w-full bg-black/60 text-[11px] text-white px-2 py-1.5 rounded border border-[#1F252D] focus:outline-none focus:border-orange-500 font-mono"
+                />
+                <input
+                  type="text"
+                  placeholder="Handle (e.g. @lexfridman)"
+                  value={newPresetHandle}
+                  onChange={(e) => setNewPresetHandle(e.target.value)}
+                  className="w-full bg-black/60 text-[11px] text-white px-2 py-1.5 rounded border border-[#1F252D] focus:outline-none focus:border-orange-500 font-mono"
+                />
+                <input
+                  type="url"
+                  placeholder="YouTube URL"
+                  value={newPresetUrl}
+                  onChange={(e) => setNewPresetUrl(e.target.value)}
+                  className="w-full bg-black/60 text-[11px] text-white px-2 py-1.5 rounded border border-[#1F252D] focus:outline-none focus:border-orange-500 font-mono"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddPreset}
+                  className="w-full py-1.5 bg-orange-600/20 hover:bg-orange-600/35 text-orange-400 font-mono font-bold text-[10.5px] uppercase rounded border border-orange-500/30 transition"
+                >
+                  Add Preset
+                </button>
+              </div>
+            </div>
+
           </div>
 
           <form onSubmit={triggerCrawl} className="space-y-4 border-t border-[#1C222A] pt-4">

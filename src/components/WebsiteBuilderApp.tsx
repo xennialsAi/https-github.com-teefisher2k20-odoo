@@ -684,11 +684,11 @@ ${multimodalType === 'none' ? `- Multimodal channels [DISABLED].` : ''}
           >
             ⚡ Live Showcase
           </button>
-          <button 
+           <button 
             onClick={() => setActiveTab('logo-maker')}
             className={cn("px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded transition-all font-mono", activeTab === 'logo-maker' ? "bg-[#a855f7] text-white shadow" : "text-gray-400 hover:text-white")}
           >
-            🎨 Style Creator (Emotion)
+            🎬 Remotion Studio (remotion.dev)
           </button>
           <button 
             onClick={() => setActiveTab('docs')}
@@ -843,9 +843,9 @@ ${multimodalType === 'none' ? `- Multimodal channels [DISABLED].` : ''}
                 </div>
               </div>
 
-              {/* Dynamic device frame and emotion control inputs */}
+              {/* Dynamic device frame and Remotion video engine control inputs */}
               <div className="border-t border-white/5 pt-3.5 space-y-3">
-                <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#8E95A3] font-mono">Frame & Emotion controls</h3>
+                <h3 className="text-[10px] font-bold uppercase tracking-widest text-[#8E95A3] font-mono">Frame & Remotion rendering controls</h3>
                 
                 {/* Frame Style Dropdown */}
                 <div className="space-y-1">
@@ -862,18 +862,18 @@ ${multimodalType === 'none' ? `- Multimodal channels [DISABLED].` : ''}
                   </select>
                 </div>
 
-                {/* Agent Personality Emotion Dropdown */}
+                {/* Agent Personality Remotion Dropdown */}
                 <div className="space-y-1">
-                  <label className="block text-[9px] text-gray-500 uppercase font-bold font-mono">Assistant Personality Emotion</label>
+                  <label className="block text-[9px] text-gray-500 uppercase font-bold font-mono">Assistant Personality Remotion Profiler</label>
                   <select
                     value={agentEmotion}
                     onChange={(e) => setAgentEmotion(e.target.value as any)}
                     className="w-full bg-[#141820] text-xs text-white p-2.5 rounded border border-[#1C222A] focus:outline-none"
                   >
-                    <option value="patient_empathic">Patient, Warm & Empathetic (Teal glow)</option>
-                    <option value="ruthless_automation">Ruthless, Efficient & Fast (Blue pulse)</option>
-                    <option value="hyper_growth_hype">Bold, Loud Growth-Hype (Gold spark)</option>
-                    <option value="focused_compliance">Meticulous Legal-Auditor (Purple focus)</option>
+                    <option value="patient_empathic">Patient, Warm & Empathetic Rendering (Teal glow)</option>
+                    <option value="ruthless_automation">Ruthless, Efficient & Fast Rendering (Blue pulse)</option>
+                    <option value="hyper_growth_hype">Bold, Loud Growth-Hype Rendering (Gold spark)</option>
+                    <option value="focused_compliance">Meticulous Legal-Auditor Rendering (Purple focus)</option>
                   </select>
                 </div>
 

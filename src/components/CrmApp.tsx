@@ -23,11 +23,38 @@ export default function CrmApp({ leads, partners, setLeads }: CrmAppProps) {
     { id: 'won', name: 'Won', border: 'border-t-4 border-t-emerald-500', bg: 'bg-emerald-50/20' },
   ];
 
+  const [animatingLeads, setAnimatingLeads] = useState<Record<string, { nextStage: CrmLead['stage_id']; direction: 'forward' | 'backward' }>>({});
+
   // Move lead stage
   const moveStage = (leadId: string, nextStage: CrmLead['stage_id']) => {
-    setLeads((prev) =>
-      prev.map((l) => (l.id === leadId ? { ...l, stage_id: nextStage, probability: nextStage === 'won' ? 100 : l.probability } : l))
-    );
+    const lead = leads.find((l) => l.id === leadId);
+    if (!lead || lead.stage_id === nextStage) return;
+
+    const currentIdx = stages.findIndex((s) => s.id === lead.stage_id);
+    const nextIdx = stages.findIndex((s) => s.id === nextStage);
+    const direction = nextIdx > currentIdx ? 'forward' : 'backward';
+
+    // 1. Tag lead with animation state (slide out)
+    setAnimatingLeads((prev) => ({
+      ...prev,
+      [leadId]: { nextStage, direction }
+    }));
+
+    // 2. Commit the stage change after CSS animation finishes
+    setTimeout(() => {
+      setLeads((prev) =>
+        prev.map((l) =>
+          l.id === leadId
+            ? { ...l, stage_id: nextStage, probability: nextStage === 'won' ? 100 : l.probability }
+            : l
+        )
+      );
+      setAnimatingLeads((prev) => {
+        const copy = { ...prev };
+        delete copy[leadId];
+        return copy;
+      });
+    }, 300); // 300ms matches the transition duration perfectly
   };
 
   // Create quick lead
@@ -174,11 +201,18 @@ export default function CrmApp({ leads, partners, setLeads }: CrmAppProps) {
                 ) : (
                   stageLeads.map((lead) => {
                     const partner = partners.find((p) => p.id === lead.partner_id);
+                    const isAnimating = !!animatingLeads[lead.id];
+                    const animDir = animatingLeads[lead.id]?.direction;
+
                     return (
                       <div
                         key={lead.id}
                         onClick={() => setActiveLead(lead)}
-                        className="p-3 bg-[#1C2129]/65 border border-[#252A33] rounded-lg hover:border-indigo-500 hover:bg-[#1C2129] cursor-pointer transition duration-150 space-y-2 group"
+                        className={cn(
+                          "p-3 bg-[#1C2129]/65 border border-[#252A33] rounded-lg hover:border-indigo-500 hover:bg-[#1C2129] cursor-pointer transition-all duration-300 ease-in-out space-y-2 group transform origin-center",
+                          isAnimating && animDir === "forward" && "translate-x-12 opacity-0 scale-90 rotate-2 pointer-events-none",
+                          isAnimating && animDir === "backward" && "-translate-x-12 opacity-0 scale-90 -rotate-2 pointer-events-none"
+                        )}
                       >
                         <div className="flex justify-between items-start">
                           <h4 className="font-semibold text-white text-xs leading-tight group-hover:text-indigo-400 transition-colors">
@@ -313,7 +347,7 @@ export default function CrmApp({ leads, partners, setLeads }: CrmAppProps) {
                         onClick={() => {
                           const updated = { ...activeLead, stage_id: stg.id, probability: stg.id === 'won' ? 100 : activeLead.probability };
                           setActiveLead(updated);
-                          setLeads((prev) => prev.map((l) => (l.id === activeLead.id ? updated : l)));
+                          moveStage(activeLead.id, stg.id);
                         }}
                         className={cn(
                           "flex-1 text-[10px] py-1.5 rounded-md font-bold text-center border transition-all uppercase tracking-wider",

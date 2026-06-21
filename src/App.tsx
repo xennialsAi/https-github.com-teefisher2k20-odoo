@@ -37,6 +37,7 @@ import AiBrandAgentApp from './components/AiBrandAgentApp';
 import BiApp from './components/BiApp';
 import OpenaiCookbookApp from './components/OpenaiCookbookApp';
 import OdooDevOpsApp from './components/OdooDevOpsApp';
+import AiAgencyHqApp from './components/AiAgencyHqApp';
 
 export default function App() {
   // Local Database Persistence Wrapper for dynamic Sandbox reloadability
@@ -129,28 +130,49 @@ export default function App() {
     if (!regexMatch) return;
     const modelName = regexMatch[1];
 
-    const fieldsList = [
-      { name: 'name', type: 'char', string: 'Name record' }
+    const fieldsList: Array<{ name: string; type: 'char' | 'integer' | 'float' | 'boolean'; string: string }> = [
+      { name: 'name', type: 'char', string: 'Name' }
     ];
 
-    if (addon.id === 'addon_school') {
-      fieldsList.push(
-        { name: 'age', type: 'integer', string: 'Age level' },
-        { name: 'grade', type: 'float', string: 'GPA Target' },
-        { name: 'enrolled', type: 'boolean', string: 'Enrolled Status' }
-      );
-    } else if (addon.id === 'addon_estate') {
-      fieldsList.push(
-        { name: 'description', type: 'char', string: 'Prop Type' },
-        { name: 'expected_price', type: 'integer', string: 'Asking Price' },
-        { name: 'bedrooms', type: 'integer', string: 'Bedrooms' },
-        { name: 'active', type: 'boolean', string: 'Listing State' }
-      );
-    }
+    // Generic parsing of Python Odoo fields configurations
+    const lines = addon.python_code.split('\n');
+    lines.forEach((line) => {
+      const fieldMatch = line.match(/^\s*([a-zA-Z_0-9]+)\s*=\s*fields\.([a-zA-Z]+)\s*\((.*)\)/);
+      if (fieldMatch) {
+        const fieldName = fieldMatch[1].trim();
+        const fieldType = fieldMatch[2].trim();
+        const argsStr = fieldMatch[3] || '';
+
+        // Avoid duplication of name field
+        if (fieldName === 'name') return;
+
+        let resolvedType: 'char' | 'integer' | 'float' | 'boolean' = 'char';
+        if (fieldType === 'Integer') resolvedType = 'integer';
+        else if (fieldType === 'Float') resolvedType = 'float';
+        else if (fieldType === 'Boolean') resolvedType = 'boolean';
+
+        let stringLabel = fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace('_', ' ');
+        const labelMatch = argsStr.match(/string\s*=\s*['"]([^'"]+)['"]/);
+        if (labelMatch) {
+          stringLabel = labelMatch[1];
+        }
+
+        fieldsList.push({
+          name: fieldName,
+          type: resolvedType,
+          string: stringLabel
+        });
+      }
+    });
+
+    const dynamicClassName = modelName
+      .split('.')
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+      .join('');
 
     const compiledModel: CustomOdooModel = {
       name: modelName,
-      className: addon.id === 'addon_school' ? 'SchoolStudent' : 'EstateProperty',
+      className: dynamicClassName,
       fields: fieldsList as any
     };
 
@@ -269,6 +291,8 @@ export default function App() {
         return <ProductivityApp />;
       case 'ai_brand_agent':
         return <AiBrandAgentApp />;
+      case 'ai_agency_hq':
+        return <AiAgencyHqApp />;
       case 'bi':
         return <BiApp />;
       case 'openai_cookbook':

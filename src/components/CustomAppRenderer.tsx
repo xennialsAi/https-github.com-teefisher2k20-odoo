@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, GraduationCap, Home, ShieldCheck, Database, FileText } from 'lucide-react';
+import { Plus, GraduationCap, Home, ShieldCheck, Database, FileText, Upload } from 'lucide-react';
 import { CustomOdooAddon, CustomOdooModel, DynamicRecord } from '../types';
 import { parseOdooXML, cn } from '../utils';
 
@@ -38,6 +38,10 @@ export default function CustomAppRenderer({
         newRecord[f.name] = f.type === 'boolean' ? false : f.type === 'integer' || f.type === 'float' ? 0 : '';
       }
     });
+
+    if (formFieldsState._record_photo) {
+      newRecord._record_photo = formFieldsState._record_photo;
+    }
 
     setCustomRecords((prev) => {
       const existing = prev[model.name] || [];
@@ -100,6 +104,7 @@ export default function CustomAppRenderer({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-[#252A33] text-[10px] font-bold uppercase text-[#8E95A3] bg-[#111419]/50">
+                <th className="p-3 w-16">Photo</th>
                 <th className="p-3">ID Reference</th>
                 {visibleFields.map((fName) => {
                   const mField = model.fields.find((field) => field.name === fName);
@@ -114,13 +119,28 @@ export default function CustomAppRenderer({
             <tbody className="text-xs divide-y divide-[#252A33] font-medium text-zinc-350">
               {records.length === 0 ? (
                 <tr>
-                  <td colSpan={visibleFields.length + 1} className="p-8 text-center text-[#8E95A3]">
+                  <td colSpan={visibleFields.length + 2} className="p-8 text-center text-[#8E95A3]">
                     No records found inside this custom database module. Create some entries by clicking "Add Record entry" on the header.
                   </td>
                 </tr>
               ) : (
                 records.map((rec) => (
                   <tr key={rec.id} className="hover:bg-[#1C2129]/30 transition">
+                    <td className="p-3">
+                      {rec._record_photo ? (
+                        <div className="relative group w-8 h-8 rounded-full overflow-hidden border border-indigo-500/20">
+                          <img 
+                            src={rec._record_photo} 
+                            alt="Record inline" 
+                            className="w-full h-full object-cover" 
+                          />
+                        </div>
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-zinc-800/80 border border-white/5 flex items-center justify-center text-[10px] font-mono font-bold text-gray-500 uppercase">
+                          {model.className.substring(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                    </td>
                     <td className="p-3 text-[#8E95A3] font-mono text-[10px] uppercase font-bold">{rec.id.substring(11)}</td>
                     {visibleFields.map((fName) => {
                       const mField = model.fields.find((f) => f.name === fName);
@@ -198,19 +218,66 @@ export default function CustomAppRenderer({
               })}
             </div>
 
-            <div className="p-3 bg-[#111419] border-t border-[#252A33] flex justify-end gap-2 text-xs">
-              <button
-                onClick={() => setShowAddForm(false)}
-                className="text-xs text-[#8E95A3] px-4 py-2 hover:bg-[#1A1E24] rounded-lg font-bold hover:text-white transition cursor-pointer"
-              >
-                Discard
-              </button>
-              <button
-                onClick={handleCreateRecord}
-                className="text-xs bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 transition cursor-pointer"
-              >
-                Insert Record
-              </button>
+            <div className="p-3 bg-[#111419] border-t border-[#252A33] flex justify-between items-center text-xs">
+              {/* Photo Upload Handler inside the footer as targeted */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="file"
+                  id="record-photo-upload"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => {
+                        setFormFieldsState((prev) => ({ ...prev, _record_photo: reader.result }));
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  id="trigger-photo-upload-selector"
+                  onClick={() => document.getElementById('record-photo-upload')?.click()}
+                  className="flex items-center gap-1.5 bg-[#1C2129] hover:bg-[#252B35] text-zinc-300 hover:text-white px-3 py-2 rounded-lg font-bold transition cursor-pointer border border-[#2D3442]"
+                >
+                  <Upload className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>{formFieldsState._record_photo ? "Change Photo" : "Upload Photo"}</span>
+                </button>
+                {formFieldsState._record_photo && (
+                  <div className="relative group w-8 h-8 rounded-lg overflow-hidden border border-indigo-500/25">
+                    <img 
+                      src={formFieldsState._record_photo} 
+                      alt="Attach Preview" 
+                      className="w-full h-full object-cover" 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setFormFieldsState((prev) => ({ ...prev, _record_photo: undefined }))}
+                      className="absolute inset-0 bg-red-650/80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-[9px] font-bold text-white uppercase font-mono"
+                    >
+                      Del
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowAddForm(false)}
+                  className="text-xs text-[#8E95A3] px-4 py-2 hover:bg-[#1A1E24] rounded-lg font-bold hover:text-white transition cursor-pointer"
+                >
+                  Discard
+                </button>
+                <button
+                  onClick={handleCreateRecord}
+                  className="text-xs bg-indigo-600 text-white px-5 py-2 rounded-lg font-bold hover:bg-indigo-700 transition cursor-pointer"
+                >
+                  Insert Record
+                </button>
+              </div>
             </div>
           </div>
         </div>
