@@ -62,11 +62,12 @@ export default function OdooDevOpsApp() {
   
   // Checklist state for local setup
   const [checklist, setChecklist] = useState({
+    prereq: false,
     clone: false,
-    sysdeps: false,
     virtualenv: false,
     pip: false,
     postgres: false,
+    conf: false,
     run: false
   });
 
@@ -402,19 +403,57 @@ longpolling_port = ${config.longpollingPort}`;
                 <div className="flex items-center justify-between mb-4 border-b border-[#252A33] pb-3">
                   <div className="flex items-center gap-2 text-amber-500">
                     <Terminal className="w-4 h-4" />
-                    <h3 className="font-bold text-white text-sm">Interactive Dev Environment Setup Tutorial</h3>
+                    <h3 className="font-bold text-white text-sm">Part 1: Local Development Setup Guide</h3>
                   </div>
                   <span className="text-[10px] bg-amber-500/10 text-amber-500 border border-amber-500/20 px-2 py-0.5 rounded uppercase font-mono font-bold">
-                    Odoo v17 Ready
+                    Odoo Local Stack
                   </span>
                 </div>
 
                 <p className="text-xs text-[#8E95A3] leading-relaxed mb-4">
-                  Follow these instructions to set up a clean Odoo local development workstation. Mark each task completed to track your progress.
+                  This guide assumes a Unix-like environment (Debian/Ubuntu/macOS). If you are on Windows, using WSL 2 (Windows Subsystem for Linux) is highly recommended to prevent C-extension compilation errors during dependency installation.
                 </p>
 
                 {/* Instruction Checklist and commands */}
                 <div className="space-y-4">
+                  {/* Prerequisite 1 */}
+                  <div className={`p-4 rounded-lg border transition ${checklist.prereq ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <button 
+                          onClick={() => toggleChecklist('prereq')}
+                          className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                            checklist.prereq ? 'bg-emerald-550 border-emerald-500' : 'border-gray-500 hover:border-amber-500'
+                          }`}
+                        >
+                          {checklist.prereq && <Check className="w-3 h-3 text-black font-black" />}
+                        </button>
+                        <div>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Prerequisite 1: System Packages & PostgreSQL</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans">Install build dependencies, PostgreSQL, and web assets compilers for Debian/Ubuntu.</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => copyToClipboard('sudo apt update && sudo apt upgrade -y && sudo apt install -y git python3-pip python3-dev python3-venv postgresql libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libldap2-dev build-essential libssl-dev libffi-dev libjpeg-dev libpq-dev liblcms2-dev libwebp-dev libharfbuzz-dev libfribidi-dev libxcb1-dev nodejs npm wkhtmltopdf', 'prereq')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
+                      >
+                        {copiedFile === 'prereq' ? 'Copied!' : 'Copy Code'}
+                      </button>
+                    </div>
+                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[10px] text-amber-400 select-all overflow-x-auto whitespace-pre leading-relaxed">
+                      <span className="text-gray-500"># Update system packages</span><br />
+                      sudo apt update && sudo apt upgrade -y<br /><br />
+                      <span className="text-gray-500"># Install build dependencies, PostgreSQL, Git, and web assets compilers</span><br />
+                      sudo apt install -y git python3-pip python3-dev python3-venv postgresql \<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libldap2-dev \<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;build-essential libssl-dev libffi-dev libjpeg-dev libpq-dev \<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;liblcms2-dev libwebp-dev libharfbuzz-dev libfribidi-dev \<br />
+                      &nbsp;&nbsp;&nbsp;&nbsp;libxcb1-dev nodejs npm<br /><br />
+                      <span className="text-gray-500"># Install wkhtmltopdf (Required for PDF report rendering)</span><br />
+                      sudo apt install -y wkhtmltopdf
+                    </div>
+                  </div>
+
                   {/* Step 1: Clone */}
                   <div className={`p-4 rounded-lg border transition ${checklist.clone ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
                     <div className="flex items-start justify-between gap-3">
@@ -428,55 +467,24 @@ longpolling_port = ${config.longpollingPort}`;
                           {checklist.clone && <Check className="w-3 h-3 text-black font-black" />}
                         </button>
                         <div>
-                          <p className="text-xs font-bold text-white uppercase font-mono">1. Clone Odoo Repository</p>
-                          <p className="text-[11px] text-[#8E95A3] mt-1">Get the complete source files into your local directory.</p>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Step 1: Clone the Custom Repository</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans">Clone your specified repository onto your local workstation.</p>
                         </div>
                       </div>
                       <button 
-                        onClick={() => copyToClipboard(`git clone --depth 1 -b ${config.odooVersion} ${config.repoUrl}`, 'clone')}
-                        className="text-[10px] text-amber-550 flex items-center gap-1 hover:underline shrink-0"
+                        onClick={() => copyToClipboard(`git clone ${config.repoUrl}\ncd odoo`, 'clone')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
                       >
                         {copiedFile === 'clone' ? 'Copied!' : 'Copy Code'}
                       </button>
                     </div>
                     <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[11px] text-amber-400 select-all overflow-x-auto whitespace-pre">
-                      git clone --depth 1 -b {config.odooVersion} {config.repoUrl}
+                      git clone {config.repoUrl}<br />
+                      cd odoo
                     </div>
                   </div>
 
-                  {/* Step 2: System Dependencies */}
-                  <div className={`p-4 rounded-lg border transition ${checklist.sysdeps ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex items-start gap-2.5">
-                        <button 
-                          onClick={() => toggleChecklist('sysdeps')}
-                          className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition-colors ${
-                            checklist.sysdeps ? 'bg-emerald-550 border-emerald-500' : 'border-gray-500 hover:border-amber-500'
-                          }`}
-                        >
-                          {checklist.sysdeps && <Check className="w-3 h-3 text-black" />}
-                        </button>
-                        <div>
-                          <p className="text-xs font-bold text-white uppercase font-mono">2. System Dependencies</p>
-                          <p className="text-[11px] text-[#8E95A3] mt-1">Odoo needs low-level compilers, PostgreSQL client headers, and XML/SVG processors.</p>
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => copyToClipboard('sudo apt-get update && sudo apt-get install -y python3-dev python3-pip python3-venv git build-essential libxslt-dev libxml2-dev libzip-dev libldap2-dev libsasl2-dev libjpeg-dev libpq-dev node-less', 'sysdeps')}
-                        className="text-[10px] text-amber-550 flex items-center gap-1 hover:underline shrink-0"
-                      >
-                        {copiedFile === 'sysdeps' ? 'Copied!' : 'Copy Code'}
-                      </button>
-                    </div>
-                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33]/60 p-2 text-indigo-400 select-all overflow-x-auto text-[10px] leading-relaxed">
-                      <span className="text-gray-500"># For Debian / Ubuntu systems:</span><br />
-                      sudo apt-get update && sudo apt-get install -y python3-dev python3-pip python3-venv \
-                        libxml2-dev libxslt1-dev zlib1g-dev libsasl2-dev libldap2-dev \
-                        libjpeg-dev libpq-dev Node.js node-less libssl-dev
-                    </div>
-                  </div>
-
-                  {/* Step 3: Python Environment & local requirements */}
+                  {/* Step 2: Configure Python Virtual Environment */}
                   <div className={`p-4 rounded-lg border transition ${checklist.virtualenv ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2.5">
@@ -489,25 +497,26 @@ longpolling_port = ${config.longpollingPort}`;
                           {checklist.virtualenv && <Check className="w-3 h-3 text-black" />}
                         </button>
                         <div>
-                          <p className="text-xs font-bold text-white uppercase font-mono">3. Virtual Environment Setup</p>
-                          <p className="text-[11px] text-[#8E95A3] mt-1">Isolate python libraries to prevent system package collisions.</p>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Step 2: Configure Python Virtual Environment</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans">Create an isolated environment to prevent conflicts with system Python libraries.</p>
                         </div>
                       </div>
                       <button 
-                        onClick={() => copyToClipboard(`python3 -m venv odoo-env && source odoo-env/bin/activate`, 'env')}
-                        className="text-[10px] text-amber-550 flex items-center gap-1 hover:underline shrink-0"
+                        onClick={() => copyToClipboard('python3 -m venv odoo-env\nsource odoo-env/bin/activate', 'virtualenv')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
                       >
-                        {copiedFile === 'env' ? 'Copied!' : 'Copy Code'}
+                        {copiedFile === 'virtualenv' ? 'Copied!' : 'Copy Code'}
                       </button>
                     </div>
-                    <div className="mt-2 text-[11px] font-mono bg-[#0A0C0F] border border-[#252A33] p-2 rounded text-zinc-350 select-all">
-                      cd odoo<br />
-                      python3 -m venv odoo-env<br />
+                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[11px] text-zinc-300 select-all overflow-x-auto whitespace-pre">
+                      <span className="text-gray-500 font-sans"># Create a virtual environment named 'odoo-env'</span><br />
+                      python3 -m venv odoo-env<br /><br />
+                      <span className="text-gray-500 font-sans"># Activate the virtual environment</span><br />
                       source odoo-env/bin/activate
                     </div>
                   </div>
 
-                  {/* Step 4: Python Module Installation */}
+                  {/* Step 3: Install Python Dependencies */}
                   <div className={`p-4 rounded-lg border transition ${checklist.pip ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2.5">
@@ -520,24 +529,99 @@ longpolling_port = ${config.longpollingPort}`;
                           {checklist.pip && <Check className="w-3 h-3 text-black" />}
                         </button>
                         <div>
-                          <p className="text-xs font-bold text-white uppercase font-mono">4. Pip Module dependencies</p>
-                          <p className="text-[11px] text-[#8E95A3] mt-1">Resolve and compile requirements.txt containing odoo core frameworks.</p>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Step 3: Install Python Dependencies</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans font-sans">Install Odoo dependencies via pip after upgrading package managers.</p>
                         </div>
                       </div>
                       <button 
-                        onClick={() => copyToClipboard('pip install --upgrade pip && pip install -r requirements.txt', 'pip')}
-                        className="text-[10px] text-amber-550 flex items-center gap-1 hover:underline shrink-0"
+                        onClick={() => copyToClipboard('pip install --upgrade pip wheel setuptools\npip install -r requirements.txt', 'pip')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
                       >
                         {copiedFile === 'pip' ? 'Copied!' : 'Copy Code'}
                       </button>
                     </div>
-                    <div className="mt-2 text-[11px] font-mono bg-[#0A0C0F] border border-[#252A33] p-2 rounded text-indigo-300">
-                      pip install --upgrade pip<br />
+                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[11px] text-indigo-300 select-all overflow-x-auto whitespace-pre">
+                      <span className="text-gray-500 font-sans"># Upgrade pip to avoid wheel construction failures</span><br />
+                      pip install --upgrade pip wheel setuptools<br /><br />
+                      <span className="text-gray-500 font-sans"># Install Odoo requirements</span><br />
                       pip install -r requirements.txt
                     </div>
                   </div>
 
-                  {/* Step 5: Start Local Instance */}
+                  {/* Step 4: Configure the PostgreSQL Database */}
+                  <div className={`p-4 rounded-lg border transition ${checklist.postgres ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <button 
+                          onClick={() => toggleChecklist('postgres')}
+                          className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                            checklist.postgres ? 'bg-emerald-550 border-emerald-500' : 'border-gray-500 hover:border-amber-500'
+                          }`}
+                        >
+                          {checklist.postgres && <Check className="w-3 h-3 text-black" />}
+                        </button>
+                        <div>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Step 4: Configure the PostgreSQL Database</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans">Create a database superuser role matching your active local workstation user name.</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => copyToClipboard(`sudo -u postgres createuser -s $USER\npsql -d postgres`, 'postgres')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
+                      >
+                        {copiedFile === 'postgres' ? 'Copied!' : 'Copy Code'}
+                      </button>
+                    </div>
+                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[11px] text-amber-400 select-all overflow-x-auto whitespace-pre">
+                      <span className="text-gray-500 font-sans"># Create a database superuser matching your system user name</span><br />
+                      sudo -u postgres createuser -s $USER<br /><br />
+                      <span className="text-gray-500 font-sans"># (Optional) Verify your access to the PostgreSQL terminal (Exit with \\q)</span><br />
+                      psql -d postgres
+                    </div>
+                  </div>
+
+                  {/* Step 5: Configure the odoo.conf File */}
+                  <div className={`p-4 rounded-lg border transition ${checklist.conf ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-start gap-2.5">
+                        <button 
+                          onClick={() => toggleChecklist('conf')}
+                          className={`mt-0.5 w-4 h-4 rounded flex items-center justify-center border transition-colors ${
+                            checklist.conf ? 'bg-emerald-550 border-emerald-500' : 'border-gray-500 hover:border-amber-500'
+                          }`}
+                        >
+                          {checklist.conf && <Check className="w-3 h-3 text-black" />}
+                        </button>
+                        <div>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Step 5: Configure the odoo.conf File</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans">Create odoo.conf in your root directory to instruct the server where resources reside.</p>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => copyToClipboard(`[options]\ndb_host = 127.0.0.1\ndb_port = 5432\ndb_user = YOUR_SYSTEM_USER_NAME\ndb_password = False\naddons_path = addons,odoo/addons\nhttp_port = ${config.odooPort}\nlog_level = ${config.logLevel}`, 'conf')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
+                      >
+                        {copiedFile === 'conf' ? 'Copied!' : 'Copy Code'}
+                      </button>
+                    </div>
+                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[11px] text-indigo-300 select-all overflow-x-auto whitespace-pre">
+                      <span className="text-gray-500 font-sans"># Save as "odoo.conf" in the root odoo directory</span><br />
+                      [options]<br />
+                      ; Database credentials (since your system user is a superuser, keep db_password blank)<br />
+                      db_host = 127.0.0.1<br />
+                      db_port = 5432<br />
+                      db_user = YOUR_SYSTEM_USER_NAME<br />
+                      db_password = False<br /><br />
+                      ; Addons paths (pointing to default modules and any custom addons folders)<br />
+                      addons_path = addons,odoo/addons<br /><br />
+                      ; HTTP Port<br />
+                      http_port = {config.odooPort}<br /><br />
+                      ; Logging<br />
+                      log_level = {config.logLevel}
+                    </div>
+                  </div>
+
+                  {/* Step 6: Launch and Initialize the Server */}
                   <div className={`p-4 rounded-lg border transition ${checklist.run ? 'bg-emerald-500/5 border-emerald-500/25' : 'bg-[#0B0D10] border-[#252A33]'}`}>
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-2.5">
@@ -550,22 +634,24 @@ longpolling_port = ${config.longpollingPort}`;
                           {checklist.run && <Check className="w-3 h-3 text-black" />}
                         </button>
                         <div>
-                          <p className="text-xs font-bold text-white uppercase font-mono">5. Start Odoo Core Server</p>
-                          <p className="text-[11px] text-[#8E95A3] mt-1">Boot the application pointing to postgres database connection configuration.</p>
+                          <p className="text-xs font-bold text-white uppercase font-mono">Step 6: Launch and Initialize the Server</p>
+                          <p className="text-[11px] text-[#8E95A3] mt-1 font-sans">Launch the server with base database provisioning, then route to the browser client.</p>
                         </div>
                       </div>
                       <button 
-                        onClick={() => copyToClipboard(`./odoo-bin -c odoo.conf -d odoo_test_db -i base`, 'run')}
-                        className="text-[10px] text-amber-550 flex items-center gap-1 hover:underline shrink-0"
+                        onClick={() => copyToClipboard(`python3 odoo-bin -c odoo.conf -d odoo_dev_db -i base\npython3 odoo-bin -c odoo.conf`, 'run')}
+                        className="text-[10px] text-amber-555 flex items-center gap-1 hover:underline shrink-0 font-mono"
                       >
                         {copiedFile === 'run' ? 'Copied!' : 'Copy Code'}
                       </button>
                     </div>
-                    <div className="mt-2 text-[11px] font-mono bg-[#0A0C0F] border border-[#252A33] p-2 rounded text-zinc-350 select-all">
-                      <span className="text-gray-500"># Start with auto-installing database parameters:</span><br />
-                      ./odoo-bin -c odoo.conf -d {config.postgresDb} -i base --stop-after-init<br /><br />
-                      <span className="text-gray-500"># Run standard cluster service:</span><br />
-                      ./odoo-bin -c odoo.conf
+                    <div className="mt-2.5 bg-[#0A0C0F] border border-[#252A33] p-2.5 rounded font-mono text-[11px] text-zinc-300 select-all overflow-x-auto whitespace-pre">
+                      <span className="text-gray-500 font-sans"># Run and install base modules automatically on first setup:</span><br />
+                      python3 odoo-bin -c odoo.conf -d odoo_dev_db -i base<br /><br />
+                      <span className="text-gray-500 font-sans"># Once initialized, open browser and navigate to:</span><br />
+                      http://localhost:{config.odooPort}  (Username: admin / Password: admin)<br /><br />
+                      <span className="text-gray-500 font-sans"># For future sessions, launch the server without installation:</span><br />
+                      python3 odoo-bin -c odoo.conf
                     </div>
                   </div>
 
@@ -699,108 +785,201 @@ longpolling_port = ${config.longpollingPort}`;
             <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-5 shadow-sm">
               <div className="flex items-center gap-2 mb-3 text-amber-500">
                 <CloudLightning className="w-5 h-5" />
-                <h3 className="font-bold text-white text-sm">Enterprise Multi-Cloud Deployment Blueprint</h3>
+                <h3 className="font-bold text-white text-sm">Part 2: Open Source Deployment Options</h3>
               </div>
               <p className="text-xs text-[#8E95A3] leading-relaxed max-w-4xl">
-                Odoo ERP is a heavy core application with relational database state, persistent file uploads (filestore), and scheduling processes (cron tasks). Decoupling these resources into stateless compute layers, cloud databases, and dedicated storage objects ensures high reliability and cost efficiency.
+                When moving from local development to production, choosing a robust, secure, and easily maintainable environment is critical. Below is a structured analysis of popular open-source deployment strategies for Odoo, outlining their execution patterns, pros, and cons.
               </p>
             </div>
 
             {/* Deep Platform Comparisons Matrix */}
-            <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
               
-              {/* Odoo.sh Card */}
-              <div className="bg-[#14171D] border border-emerald-500/25 rounded-xl p-4 flex flex-col justify-between hover:border-emerald-500/50 transition">
+              {/* Option 1: Docker & Docker Compose */}
+              <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-5 flex flex-col justify-between hover:border-amber-500/25 transition space-y-4">
                 <div>
-                  <div className="flex justify-between items-center mb-2.5">
-                    <span className="text-[10px] bg-emerald-500/10 text-emerald-400 font-bold px-2 py-0.5 rounded font-mono uppercase">Odoo.sh (PaaS)</span>
-                    <TrendingUp className="w-4 h-4 text-emerald-400" />
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] bg-amber-500/10 text-amber-500 font-bold px-2 py-0.5 rounded font-mono uppercase">Container orchestration</span>
+                    <Boxes className="w-5 h-5 text-amber-500" />
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">Odoo SaaS Cloud</h4>
-                  <p className="text-[11px] text-[#8E95A3] leading-relaxed">
-                    First-party cloud designed directly for Odoo. Native GitHub integration compiles files on push. Handles database cluster backups, staging environments, and auto-configs automatically.
+                  <h4 className="font-bold text-white text-base mb-1">1. Docker & Docker Compose (Self-Hosted on VPS)</h4>
+                  <p className="text-xs text-gray-400 font-semibold mb-2 uppercase font-mono">How it works:</p>
+                  <p className="text-xs text-[#8E95A3] leading-relaxed mb-4">
+                    Docker-based environments are the standard for small-to-medium business deployments. They bundle Odoo and PostgreSQL into standardized containers, minimizing host system dependencies. You run an open-source Docker daemon on a clean Linux OS (e.g., Ubuntu). A <code className="bg-[#0B0D10] text-[#E0E2E6] px-1 font-mono text-[10px]">docker-compose.yml</code> orchestrates the Odoo web container, the PostgreSQL database container, and a reverse proxy (like Nginx or Traefik) for SSL certificates.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#252A33]/55 text-[10px] font-mono space-y-1.5">
-                  <div className="flex justify-between text-gray-500"><span>FILER STORE:</span><span className="text-slate-300">First-party</span></div>
-                  <div className="flex justify-between text-gray-500"><span>DIFFICULTY:</span><span className="text-emerald-400">Extremely Low</span></div>
-                  <div className="flex justify-between text-gray-500"><span>SCALING:</span><span className="text-slate-300">Single Instance</span></div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#252A33]">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-2 font-mono">Pros</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Portability:</strong> If you need to move providers, simply copy your configuration directory and database volume.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Environment Isolation:</strong> Odoo's Python variables and system libraries do not conflict with host processes.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Ecosystem Integration:</strong> Easily integrate open-source utilities like Let's Encrypt for automatic HTTPS renewals.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider block mb-2 font-mono">Cons</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span>Requires active database backup management (using pg_dump cron jobs or external block-storage backups).</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span>Containers add a minor storage and memory overhead compared to bare-metal execution.</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
-              {/* GCP Card */}
-              <div className="bg-[#14171D] border border-amber-550/20 rounded-xl p-4 flex flex-col justify-between hover:border-amber-550/40 transition">
+              {/* Option 2: Coolify or CapRover */}
+              <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-5 flex flex-col justify-between hover:border-amber-500/25 transition space-y-4">
                 <div>
-                  <div className="flex justify-between items-center mb-2.5">
-                    <span className="text-[10px] bg-amber-500/10 text-amber-500 font-bold px-2 py-0.5 rounded font-mono uppercase">GCP (SaaS/IaaS)</span>
-                    <Globe className="w-4 h-4 text-amber-400" />
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] bg-amber-500/10 text-amber-500 font-bold px-2 py-0.5 rounded font-mono uppercase">Open-Source PaaS</span>
+                    <CloudLightning className="w-5 h-5 text-amber-500" />
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">Google Cloud Platform</h4>
-                  <p className="text-[11px] text-[#8E95A3] leading-relaxed">
-                    Deploy utilizing Cloud Run for stateless container pods with Cloud SQL Postgres for data storage. Store the assets/filestore on Google Cloud Storage (GCS) using gcsfuse middleware for live filestore attachments.
+                  <h4 className="font-bold text-white text-base mb-1">2. Coolify or CapRover (Self-Hosted PaaS Alternatives to Heroku)</h4>
+                  <p className="text-xs text-gray-400 font-semibold mb-2 uppercase font-mono">How it works:</p>
+                  <p className="text-xs text-[#8E95A3] leading-relaxed mb-4">
+                    If you prefer a visual web dashboard to deploy, manage, and scale applications, open-source PaaS platforms are excellent choices. You install Coolify or CapRover on your VPS and connect your GitHub repository (<code className="bg-[#0B0D10] text-[#E0E2E6] px-1 font-mono text-[10px]">https://github.com/teefisher2k20/odoo.git</code>). The system detects the codebase, provisions PostgreSQL, sets up environment variables, routes your domain, and issues SSL certificates automatically on every push.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#252A33]/55 text-[10px] font-mono space-y-1.5">
-                  <div className="flex justify-between text-gray-500"><span>FILER STORE:</span><span className="text-slate-300">GCS (via Fuse)</span></div>
-                  <div className="flex justify-between text-gray-500"><span>DIFFICULTY:</span><span className="text-amber-500">Medium</span></div>
-                  <div className="flex justify-between text-gray-500"><span>SCALING:</span><span className="text-emerald-400">Horizontal (Pods)</span></div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#252A33]">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-2 font-mono">Pros</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>GitOps Workflow:</strong> Deploying a change is as easy as running a simple <code className="text-emerald-400 font-mono text-[10px]">git push origin main</code>.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Intuitive Web UI:</strong> Monitor CPU, memory usage, container state, and system logs without using terminal commands.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Database Management:</strong> Includes simple graphical interfaces for taking database snapshots.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider block mb-2 font-mono">Cons</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span>Requires configuring custom build definitions (such as a custom Dockerfile or Nixpack buildpack) to install Odoo's system-level C dependencies.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span>If the PaaS management cluster crashes, debugging the underlying reverse proxy configurations can be complex.</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
-              {/* AWS Card */}
-              <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-4 flex flex-col justify-between hover:border-[#323844] transition">
+              {/* Option 3: Kubernetes with Helm */}
+              <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-5 flex flex-col justify-between hover:border-amber-500/25 transition space-y-4">
                 <div>
-                  <div className="flex justify-between items-center mb-2.5">
-                    <span className="text-[10px] bg-[#252A33] text-blue-400 font-bold px-2 py-0.5 rounded font-mono uppercase">AWS (Fargate)</span>
-                    <Cpu className="w-4 h-4 text-blue-400" />
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] bg-amber-500/10 text-amber-500 font-bold px-2 py-0.5 rounded font-mono uppercase">High availability / cluster</span>
+                    <Cpu className="w-5 h-5 text-amber-500" />
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">Amazon Web Services</h4>
-                  <p className="text-[11px] text-[#8E95A3] leading-relaxed">
-                    Host containers on ECS (Elastic Container Service) with Fargate compute profiles. PostgreSQL DB resides inside RDS (Multi-AZ fallback for disaster recovery), with local attachments mapped using EFS (Elastic File System) mount loops.
+                  <h4 className="font-bold text-white text-base mb-1">3. Kubernetes with Helm (High Availability / Enterprise Topology)</h4>
+                  <p className="text-xs text-gray-400 font-semibold mb-2 uppercase font-mono">How it works:</p>
+                  <p className="text-xs text-[#8E95A3] leading-relaxed mb-4">
+                    For large-scale, high-traffic installations where zero downtime is required, deploying Odoo to a Kubernetes cluster is the premier enterprise approach. You use open-source Helm charts (e.g., Bitnami Odoo) or Kubernetes Operators to deploy Odoo pods behind a load balancer, backed by a persistent database cluster.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#252A33]/55 text-[10px] font-mono space-y-1.5">
-                  <div className="flex justify-between text-gray-500"><span>FILER STORE:</span><span className="text-slate-300">EFS Volumes</span></div>
-                  <div className="flex justify-between text-gray-500"><span>DIFFICULTY:</span><span className="text-slate-400">Medium-High</span></div>
-                  <div className="flex justify-between text-gray-500"><span>SCALING:</span><span className="text-emerald-400">Horizontal Auto</span></div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#252A33]">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-2 font-mono">Pros</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Horizontal Scaling:</strong> Automatically scales Odoo worker pods up or down to handle high traffic surges.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Self-Healing:</strong> If an Odoo container fails or encounters memory leaks, Kubernetes immediately terminates and restarts it without user intervention.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>High Availability:</strong> Ensures your ERP remains active even if an underlying cloud physical server fails.</span>
+                      </li>
+                    </ul>
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider block mb-2 font-mono">Cons</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span><strong>Massive Complexity:</strong> Requires deep expertise in container orchestration, ingress controllers, persistent volume claims, and networking.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span><strong>Cost:</strong> Running a minimal multi-node Kubernetes cluster is significantly more expensive than running a single robust virtual machine.</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
-              {/* Azure Card */}
-              <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-4 flex flex-col justify-between hover:border-[#323844] transition">
+              {/* Option 4: Native Linux Systemd Service */}
+              <div className="bg-[#14171D] border border-[#252A33] rounded-xl p-5 flex flex-col justify-between hover:border-amber-500/25 transition space-y-4">
                 <div>
-                  <div className="flex justify-between items-center mb-2.5">
-                    <span className="text-[10px] bg-[#252A33] text-indigo-400 font-bold px-2 py-0.5 rounded font-mono uppercase">Azure (WebApps)</span>
-                    <Layers className="w-4 h-4 text-indigo-400" />
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-[10px] bg-amber-500/10 text-amber-500 font-bold px-2 py-0.5 rounded font-mono uppercase">Classic bare metal</span>
+                    <Server className="w-5 h-5 text-amber-500" />
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">Microsoft Azure</h4>
-                  <p className="text-[11px] text-[#8E95A3] leading-relaxed">
-                    Utilize Azure App Services for Container deployment. Connect to Azure Database for PostgreSQL flexible server engine. Mount Azure Files Shared volumes into paths for shared session-filestore.
+                  <h4 className="font-bold text-white text-base mb-1">4. Native Linux Systemd Service (Classic Bare-Metal)</h4>
+                  <p className="text-xs text-gray-400 font-semibold mb-2 uppercase font-mono">How it works:</p>
+                  <p className="text-xs text-[#8E95A3] leading-relaxed mb-4">
+                    Directly installing Odoo onto the host OS and running it as a standard system service. You configure a Python virtual environment and PostgreSQL database directly on the host machine. You write a standard systemd service file (<code className="bg-[#0B0D10] text-[#E0E2E6] px-1 font-mono text-[10px]">/etc/systemd/system/odoo.service</code>) to start Odoo on system boot.
                   </p>
                 </div>
-                <div className="mt-4 pt-3 border-t border-[#252A33]/55 text-[10px] font-mono space-y-1.5">
-                  <div className="flex justify-between text-gray-500"><span>FILER STORE:</span><span className="text-slate-300">Azure Files</span></div>
-                  <div className="flex justify-between text-gray-500"><span>DIFFICULTY:</span><span className="text-slate-400">Medium</span></div>
-                  <div className="flex justify-between text-gray-500"><span>SCALING:</span><span className="text-indigo-400">Manual ScaleOut</span></div>
-                </div>
-              </div>
-
-              {/* On-Premise Card */}
-              <div className="bg-[#14171D] border border-blue-500/25 rounded-xl p-4 flex flex-col justify-between hover:border-blue-500/50 transition">
-                <div>
-                  <div className="flex justify-between items-center mb-2.5">
-                    <span className="text-[10px] bg-blue-500/10 text-blue-400 font-bold px-2 py-0.5 rounded font-mono uppercase">On-Premise</span>
-                    <Server className="w-4 h-4 text-blue-400" />
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-[#252A33]">
+                  <div>
+                    <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider block mb-2 font-mono">Pros</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Maximum Performance:</strong> Direct access to host hardware with zero virtualization overhead.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-emerald-500 font-bold font-sans">✓</span>
+                        <span><strong>Minimal Setup:</strong> No need to learn container runtimes or PaaS architecture.</span>
+                      </li>
+                    </ul>
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">Standard VM Setup</h4>
-                  <p className="text-[11px] text-[#8E95A3] leading-relaxed">
-                    Install Postgres and Odoo locally on a secure Ubuntu Server. Map connections behind an Nginx reverse proxy using Let's Encrypt SSL certificates. Manage operations via systemd units.
-                  </p>
-                </div>
-                <div className="mt-4 pt-3 border-t border-[#252A33]/55 text-[10px] font-mono space-y-1.5">
-                  <div className="flex justify-between text-gray-500"><span>FILER STORE:</span><span className="text-slate-300">Local Ext4 Disc</span></div>
-                  <div className="flex justify-between text-gray-500"><span>DIFFICULTY:</span><span className="text-slate-300">Medium</span></div>
-                  <div className="flex justify-between text-gray-500"><span>SCALING:</span><span className="text-orange-400">Vertical (RAM/Cpu)</span></div>
+                  <div>
+                    <span className="text-xs font-bold text-red-400 uppercase tracking-wider block mb-2 font-mono">Cons</span>
+                    <ul className="space-y-1.5 text-xs text-[#8E95A3]">
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span><strong>Server Clutter:</strong> The server's OS becomes tied to a specific Python configuration and dependency set, making upgrades or system migrations difficult.</span>
+                      </li>
+                      <li className="flex items-start gap-1.5">
+                        <span className="text-red-500 font-bold font-sans">✗</span>
+                        <span><strong>Security Risks:</strong> If the system service is compromised, attackers have more direct routes to the host OS compared to sandboxed containers.</span>
+                      </li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 
